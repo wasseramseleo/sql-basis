@@ -1,0 +1,193 @@
+-- =========================================================================
+-- DDL: Datenbank & Tabellenstruktur
+-- =========================================================================
+USE master;
+GO
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'AKH_Wien')
+BEGIN
+    CREATE DATABASE AKH_Wien;
+END
+GO
+
+USE AKH_Wien;
+GO
+
+SET NOCOUNT ON;
+GO
+
+-- Bestehende Tabellen für idempotente Ausführung droppen
+DROP TABLE IF EXISTS Behandlungen;
+DROP TABLE IF EXISTS Patienten_Archiv;
+DROP TABLE IF EXISTS Patienten;
+DROP TABLE IF EXISTS Aerzte;
+DROP TABLE IF EXISTS Stationen;
+GO
+
+CREATE TABLE Stationen (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Fachbereich NVARCHAR(100) NOT NULL,
+    Stockwerk INT NOT NULL,
+    BettenAnzahl INT CHECK (BettenAnzahl > 0)
+);
+
+CREATE TABLE Aerzte (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Nachname NVARCHAR(100) NOT NULL,
+    Vorname NVARCHAR(100) NOT NULL,
+    Titel NVARCHAR(50),
+    Fachrichtung NVARCHAR(100) NOT NULL,
+    StatID INT FOREIGN KEY REFERENCES Stationen(ID)
+);
+
+CREATE TABLE Patienten (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Nachname NVARCHAR(100) NOT NULL,
+    Vorname NVARCHAR(100) NOT NULL,
+    GebDatum DATE NOT NULL,
+    SVNummer CHAR(10) UNIQUE NOT NULL,
+    Geschlecht CHAR(1) CHECK (Geschlecht IN ('M', 'W', 'D')),
+    -- Erlaubt NULL für LEFT/RIGHT/FULL JOIN Übungen
+    StatID INT FOREIGN KEY REFERENCES Stationen(ID) NULL
+);
+
+-- Strukturidentische Tabelle für UNION / INTERSECT / EXCEPT Übungen
+CREATE TABLE Patienten_Archiv (
+    ID INT PRIMARY KEY,
+    Nachname NVARCHAR(100) NOT NULL,
+    Vorname NVARCHAR(100) NOT NULL,
+    GebDatum DATE NOT NULL,
+    SVNummer CHAR(10) NOT NULL,
+    Geschlecht CHAR(1),
+    StatID INT
+);
+
+CREATE TABLE Behandlungen (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    PatID INT FOREIGN KEY REFERENCES Patienten(ID),
+    ArztID INT FOREIGN KEY REFERENCES Aerzte(ID),
+    Datum DATETIME2 NOT NULL,
+    DiagnoseCode NVARCHAR(20),
+    Kosten DECIMAL(18,2) CHECK (Kosten >= 0),
+    Status NVARCHAR(50) DEFAULT 'Abgeschlossen'
+);
+GO
+
+-- =========================================================================
+-- DML: Testdaten (Realistische AKH-Szenarien & Didaktische Edge-Cases)
+-- =========================================================================
+
+-- 1. Stationen (AKH Nomenklatur z.B. 12C, 21K etc.)
+INSERT INTO Stationen (Name, Fachbereich, Stockwerk, BettenAnzahl) VALUES
+('Station 12C', 'Kardiologie', 12, 25),
+('Station 18H', 'Onkologie', 18, 20),
+('Station 21K', 'Nephrologie', 21, 15),
+('Station 14A', 'Neurologie', 14, 30),
+('Station 09B', 'Unfallchirurgie', 9, 40);
+
+-- 2. Ärzte (20 Datensätze)
+INSERT INTO Aerzte (Nachname, Vorname, Titel, Fachrichtung, StatID) VALUES
+('Müller', 'Johannes', 'Dr. med.', 'Kardiologie', 1),
+('Bauer', 'Anna', 'Prof. Dr.', 'Kardiologie', 1),
+('Wimmer', 'Klaus', 'Dr.', 'Onkologie', 2),
+('Huber', 'Maria', 'Dr. med.', 'Onkologie', 2),
+('Schmied', 'Peter', 'Prof.', 'Nephrologie', 3),
+('Steiner', 'Julia', 'Dr.', 'Nephrologie', 3),
+('Gruber', 'Michael', 'Dr.', 'Neurologie', 4),
+('Wagner', 'Laura', 'Dr. med.', 'Neurologie', 4),
+('Pichler', 'Thomas', 'Dr.', 'Unfallchirurgie', 5),
+('Eder', 'Sarah', 'Prof. Dr.', 'Unfallchirurgie', 5),
+('Moser', 'Stefan', 'Dr.', 'Kardiologie', 1),
+('Reiter', 'Elena', 'Dr. med.', 'Onkologie', 2),
+('Mayr', 'Christian', 'Dr.', 'Nephrologie', 3),
+('Fuchs', 'Sandra', 'Dr.', 'Neurologie', 4),
+('Holzer', 'David', 'Dr.', 'Unfallchirurgie', 5),
+('Leitner', 'Katharina', 'Prof.', 'Kardiologie', 1),
+('Auer', 'Martin', 'Dr. med.', 'Onkologie', 2),
+('Schmid', 'Lisa', 'Dr.', 'Nephrologie', 3),
+('Winkler', 'Florian', 'Dr.', 'Neurologie', 4),
+('Egger', 'Melanie', 'Dr. med.', 'Unfallchirurgie', 5);
+
+-- 3. Patienten (25 Datensätze, davon 3 mit StatID = NULL für JOIN-Fallen)
+INSERT INTO Patienten (Nachname, Vorname, GebDatum, SVNummer, Geschlecht, StatID) VALUES
+('Kaufmann', 'Ernst', '1965-03-12', '1234120365', 'M', 1),
+('Ziegler', 'Berta', '1954-08-22', '5678220854', 'W', 2),
+('Novak', 'Jürgen', '1980-11-05', '9012051180', 'M', 3),
+('Horvath', 'Zoe', '1992-01-15', '3456150192', 'W', 4),
+('Toth', 'Alexander', '1975-06-30', '7890300675', 'M', 5),
+('Mayer', 'Franz', '1940-12-12', '1111121240', 'M', 1),
+('Hofer', 'Klara', '1968-04-18', '2222180468', 'W', 2),
+('Berger', 'Markus', '1985-09-25', '3333250985', 'M', 3),
+('Koller', 'Sophie', '1998-02-10', '4444100298', 'W', 4),
+('Baumgartner', 'Lukas', '1971-07-08', '5555080771', 'M', 5),
+('Wolf', 'Sabine', '1959-10-20', '6666201059', 'W', 1),
+('Schuster', 'Paul', '1982-05-14', '7777140582', 'M', 2),
+('Kraus', 'Nina', '1995-12-01', '8888011295', 'W', 3),
+('Brunner', 'Felix', '1962-08-05', '9999050862', 'M', 4),
+('Weiss', 'Emma', '1988-03-28', '1010280388', 'W', 5),
+('Grabner', 'Dominik', '1979-11-17', '2020171179', 'M', 1),
+('Lehner', 'Mia', '1991-06-03', '3030030691', 'W', 2),
+('Haas', 'Leon', '1955-01-29', '4040290155', 'M', 3),
+('Gartner', 'Lena', '1984-09-11', '5050110984', 'W', 4),
+('Karl', 'Maximilian', '1973-04-26', '6060260473', 'M', 5),
+('Graf', 'Johanna', '1960-10-09', '7070091060', 'W', 1),
+('Böhm', 'Moritz', '1989-05-22', '8080220589', 'M', 2),
+-- DELIBERATE NULLS FÜR LEFT/RIGHT JOIN ÜBUNGEN: (Ambulante Patienten ohne stationäre Aufnahme)
+('Schillinger', 'Amelie', '1999-07-14', '9090140799', 'W', NULL),
+('Resch', 'Tobias', '1977-12-06', '1212061277', 'M', NULL),
+('Lang', 'Valentina', '1986-02-19', '2323190286', 'W', NULL);
+
+-- 4. Patienten_Archiv (15 Datensätze: 5 Überschneidungen mit Patienten für UNION-Demonstration)
+INSERT INTO Patienten_Archiv (ID, Nachname, Vorname, GebDatum, SVNummer, Geschlecht, StatID) VALUES
+-- Überschneidungen (Exakte Dubletten für UNION vs UNION ALL)
+(1, 'Kaufmann', 'Ernst', '1965-03-12', '1234120365', 'M', 1),
+(2, 'Ziegler', 'Berta', '1954-08-22', '5678220854', 'W', 2),
+(3, 'Novak', 'Jürgen', '1980-11-05', '9012051180', 'M', 3),
+(4, 'Horvath', 'Zoe', '1992-01-15', '3456150192', 'W', 4),
+(5, 'Toth', 'Alexander', '1975-06-30', '7890300675', 'M', 5),
+-- Historische / Exklusive Datensätze
+(100, 'Altenberg', 'Hermann', '1930-01-01', '0001010130', 'M', NULL),
+(101, 'Zweig', 'Stefan', '1925-11-28', '0002281125', 'M', 1),
+(102, 'Freud', 'Anna', '1935-12-03', '0003031235', 'W', 4),
+(103, 'Popper', 'Karl', '1922-07-28', '0004280722', 'M', 5),
+(104, 'Meitner', 'Lise', '1928-11-07', '0005071128', 'W', 2),
+(105, 'Schrödinger', 'Erwin', '1933-08-12', '0006120833', 'M', 4),
+(106, 'Hedy', 'Lamarr', '1934-11-09', '0007091134', 'W', 5),
+(107, 'Klimt', 'Gustav', '1918-02-06', '0008060218', 'M', 1),
+(108, 'Schiele', 'Egon', '1920-10-31', '0009311020', 'M', 3),
+(109, 'Mozart', 'Wolfgang', '1956-01-27', '0010270156', 'M', NULL);
+
+-- 5. Behandlungen (30 Datensätze über 2 Jahre, Varianz bei den Kosten für Aggregation)
+INSERT INTO Behandlungen (PatID, ArztID, Datum, DiagnoseCode, Kosten, Status) VALUES
+(1, 1, '2024-01-15 08:30:00', 'I20.0', 1250.50, 'Abgeschlossen'),
+(2, 3, '2024-02-20 10:15:00', 'C34.9', 4500.00, 'Abgeschlossen'),
+(3, 5, '2024-03-10 14:00:00', 'N18.9', 850.75, 'Abgeschlossen'),
+(4, 7, '2024-04-05 09:45:00', 'G40.9', 320.00, 'Abgeschlossen'),
+(5, 9, '2024-05-12 11:30:00', 'S82.0', 2100.25, 'Abgeschlossen'),
+(6, 2, '2024-06-18 13:20:00', 'I50.9', 1750.00, 'Abgeschlossen'),
+(7, 4, '2024-07-22 15:10:00', 'C50.9', 3800.50, 'Abgeschlossen'),
+(8, 6, '2024-08-30 08:00:00', 'N17.9', 950.00, 'Abgeschlossen'),
+(9, 8, '2024-09-14 10:40:00', 'G35', 1100.80, 'Abgeschlossen'),
+(10, 10, '2024-10-25 12:15:00', 'S72.0', 4900.00, 'Abgeschlossen'),
+(11, 11, '2024-11-05 14:50:00', 'I21.9', 2500.00, 'Abgeschlossen'),
+(12, 12, '2024-12-12 09:10:00', 'C18.9', 4200.75, 'Abgeschlossen'),
+(13, 13, '2025-01-20 11:00:00', 'N00.9', 600.00, 'Abgeschlossen'),
+(14, 14, '2025-02-28 13:45:00', 'G20', 1450.25, 'Abgeschlossen'),
+(15, 15, '2025-03-15 15:30:00', 'S06.0', 800.50, 'Abgeschlossen'),
+(16, 16, '2025-04-10 08:15:00', 'I48.9', 1150.00, 'Abgeschlossen'),
+(17, 17, '2025-05-22 10:30:00', 'C61', 3100.00, 'Abgeschlossen'),
+(18, 18, '2025-06-05 14:20:00', 'N20.0', 750.20, 'Abgeschlossen'),
+(19, 19, '2025-07-18 09:50:00', 'G43.9', 150.00, 'Abgeschlossen'),
+(20, 20, '2025-08-25 11:10:00', 'S52.5', 1850.75, 'Abgeschlossen'),
+(21, 1, '2025-09-12 13:00:00', 'I10', 50.00, 'Abgeschlossen'),
+(22, 3, '2025-10-30 15:45:00', 'C43.9', 2700.50, 'Abgeschlossen'),
+(23, 5, '2025-11-15 08:40:00', 'R07.4', 220.00, 'Storniert'),
+(24, 7, '2025-12-05 10:05:00', 'G44.2', 85.50, 'Abgeschlossen'),
+(25, 9, '2026-01-10 12:30:00', 'S93.4', 450.00, 'In Behandlung'),
+(1, 11, '2026-01-20 09:00:00', 'I20.0', 300.00, 'Abgeschlossen'), -- Folgebehandlung Patient 1
+(2, 12, '2026-02-05 14:15:00', 'C34.9', 1200.00, 'In Behandlung'), -- Folgebehandlung Patient 2
+(23, 1, '2026-02-15 11:00:00', 'I49.9', 580.00, 'Abgeschlossen'), -- Ambulanter Patient
+(24, 4, '2026-02-28 10:30:00', 'Z01.8', 120.00, 'Abgeschlossen'), -- Ambulanter Patient
+(25, 10, '2026-03-01 16:00:00', 'S62.3', 950.00, 'Abgeschlossen'); -- Ambulanter Patient
+GO
