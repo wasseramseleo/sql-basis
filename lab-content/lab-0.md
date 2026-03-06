@@ -46,7 +46,7 @@ Sie sind bereit für den Kurs, wenn:
 * Die Abfrage oben eine Tabelle mit der installierten SQL-Version und der aktuellen Uhrzeit zurückgibt.
 * Keine Fehlermeldungen in roter Schrift in den "Meldungen" erscheinen.
 
-**Pro-Tipp:** Falls die Verbindung fehlschlägt, prüfen Sie in den Windows-Diensten (`services.msc`), ob der Dienst **"SQL Server (MSSQLSERVER)"** oder **"SQL Server (SQLEXPRESS)"** auf "Wird ausgeführt" steht.
+**Tipp:** Falls die Verbindung fehlschlägt, prüfen Sie in den Windows-Diensten (`services.msc`), ob der Dienst **"SQL Server (MSSQLSERVER)"** oder **"SQL Server (SQLEXPRESS)"** auf "Wird ausgeführt" steht.
 
 ---
 

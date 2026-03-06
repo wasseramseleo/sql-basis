@@ -1,105 +1,68 @@
-Die Anforderung ist verstanden. Da Modul 2 den Fokus auf visuelles Design legt, die Vorgaben aber explizit T-SQL als Lösungsformat fordern, bilden die Musterlösungen das physische DDL-Skript ab, welches das SSMS Database Diagram Tool im Hintergrund generiert.
+# Aufgabe 1: Visuelles Datenbankdesign (ERM im SSMS)
 
-Hier sind die Übungsunterlagen für Modul 2.
+### Lernziel
 
----
+Anlage einer neuen Datenbank und visuelle Modellierung von Entitäten (Patienten, Stationen) inklusive Primärschlüsseln und 1:n-Kardinalität über das SSMS Database Diagram Tool.
 
-### Datei 1: `AKH_Uebungen_Modul2_ERM.md`
+### Szenario
 
-# Übungssatz: Modul 2 – ERM & Datenbankdesign
+Das Management des AKH Wien benötigt den Grundstock für das neue Patientensystem. Bevor Daten importiert werden, muss das physische Fundament in Form einer relationalen Struktur im SQL Server Management Studio (SSMS) gelegt werden.
 
-## Aufgabe 1: Fundament der Stationen (Level 1 - Basic)
+### Aufgabenstellung
 
-* **Lernziel:** Definition einer Entität, Identifikation von Primärschlüsseln und Datentypen.
-* **Szenario:** Die Direktion des AKH Wien benötigt eine digitale Übersicht aller bettenführenden Abteilungen.
-* **Aufgabenstellung:** Modellieren Sie die Entität `Stationen`. Definieren Sie einen eindeutigen Identifikator (ID) als Primärschlüssel. Fügen Sie Attribute für Name, Fachbereich, Stockwerk und die Anzahl der Betten hinzu.
-* **Erwartetes Ergebnis:** Eine Entität mit 5 Attributen und einem definierten Primary Key (PK).
-* **Pro-Tipp:** Nutzen Sie für IDs immer den Datentyp `INT` mit einer Identity-Spezifikation (Auto-Inkrement), um manuelle Fehler bei der Schlüsselvergabe zu eliminieren.
-* **Geschätzte Dauer:** 10 Minuten.
+1. **Datenbankanlage:** Erstellen Sie im SSMS eine neue, leere Datenbank namens `AKH_Wien`.
+2. **Diagramm-Setup:** Initialisieren Sie ein neues Datenbankdiagramm in dieser Datenbank.
+3. **Entität Stationen:** Erstellen Sie visuell die Tabelle `Stationen`. Legen Sie die Attribute `ID` (als Primärschlüssel mit Auto-Inkrement), `Name`, `Fachbereich`, `Stockwerk` und `BettenAnzahl` an.
+4. **Entität Patienten:** Erstellen Sie visuell die Tabelle `Patienten`. Legen Sie die Attribute `ID` (Primärschlüssel, Auto-Inkrement), `Nachname`, `Vorname`, `GebDatum`, `SVNummer`, `Geschlecht` und `StatID` an.
+5. **Kardinalität (1:n):** Modellieren Sie die Beziehung so, dass ein Patient genau einer Station zugewiesen werden kann. Etablieren Sie dafür die FK-PK-Beziehung zwischen den beiden Tabellen. Speichern Sie das Schema ab.
 
----
+### Erwartetes Ergebnis
 
-## Aufgabe 2: Patientenaufnahme & 1:n Beziehung (Level 2 - Applied)
+Eine lauffähige Datenbank `AKH_Wien` mit einem gespeicherten ER-Diagramm, das die Tabellen `Stationen` und `Patienten` samt ihrer 1:n-Beziehung zeigt.
 
-* **Lernziel:** Erstellung von Fremdschlüsseln (FK) und Modellierung einer 1:n-Kardinalität.
-* **Szenario:** Patienten müssen bei der Aufnahme einer Stammstation zugewiesen werden. Ein Patient liegt physisch immer nur auf einer Station, eine Station hat jedoch viele Patienten.
-* **Aufgabenstellung:** Modellieren Sie die Entität `Patienten` mit den Attributen ID (PK), Nachname, Vorname, GebDatum, SVNummer und Geschlecht. Etablieren Sie eine 1:n-Beziehung zur Entität `Stationen`.
-* **Erwartetes Ergebnis:** Die Entität `Patienten` besitzt einen Fremdschlüssel `StatID`, der auf die ID der Stationen-Tabelle verweist.
-* **Pro-Tipp:** Die SVNummer in Österreich hat exakt 10 Stellen (4-stelliges Kürzel + 6-stelliges Geburtsdatum). Ein `CHAR(10)` ist hier performanter und sicherer als ein `VARCHAR`.
-* **Geschätzte Dauer:** 15 Minuten.
+### Tipp
 
----
+Nutzen Sie das Eigenschaftsfenster (F4) im SSMS, um die `Identity Specification` für IDs zu aktivieren. Dies schließt manuelle Fehler bei der Vergabe von Primärschlüsseln technisch aus.
 
-## Aufgabe 3: Behandlungslogik & m:n Auflösung (Level 3 - Expert)
+### Geschätzte Dauer
 
-* **Lernziel:** Auflösung komplexer m:n-Beziehungen durch eine Assoziationstabelle (Verknüpfungstabelle) und Implementierung von Check-Constraints.
-* **Szenario:** Das Controlling fordert eine detaillierte Leistungsverrechnung. Ein Patient kann von mehreren Ärzten behandelt werden, und ein Arzt behandelt viele Patienten.
-* **Aufgabenstellung:** Entwerfen Sie eine Struktur zur Erfassung von Behandlungen. Erstellen Sie gedanklich die Entität `Aerzte` (ID, Nachname, Vorname, Fachrichtung, StatID). Lösen Sie die m:n-Beziehung zwischen `Patienten` und `Aerzte` durch eine neue Entität `Behandlungen` auf. Diese muss das Behandlungsdatum, den DiagnoseCode (ICD-10) und die anfallenden Kosten erfassen. Kosten dürfen niemals negativ sein.
-* **Erwartetes Ergebnis:** Drei verknüpfte Entitäten. `Behandlungen` fungiert als Assoziationstabelle mit zwei Fremdschlüsseln (PatID, ArztID) und einem Check-Constraint für die Kosten.
-* **Pro-Tipp:** Vermeiden Sie zusammengesetzte Primärschlüssel (Composite Keys) in Assoziationstabellen, wenn diese später referenziert werden sollen. Ein eigener Surrogate Key (`ID INT IDENTITY`) für die Tabelle `Behandlungen` erleichtert zukünftige Erweiterungen (z.B. für eine Tabelle "Medikation_pro_Behandlung").
-* **Geschätzte Dauer:** 25 Minuten.
+15 Minuten.
 
 ---
 
-### Datei 2: `AKH_Loesungen_Modul2_ERM.sql`
+### Musterlösung (Schritt-für-Schritt im SSMS)
 
-```sql
--- =========================================================================
--- MUSTERLÖSUNG MODUL 2: ERM & Datenbankdesign (Generiertes DDL)
--- =========================================================================
+**Schritt 1: Datenbank anlegen**
 
--- -------------------------------------------------------------------------
--- Lösung Aufgabe 1: Fundament der Stationen (Level 1)
--- -------------------------------------------------------------------------
-CREATE TABLE Stationen (
-    ID INT IDENTITY(1,1) PRIMARY KEY,       -- Surrogate Key, Auto-Inkrement
-    Name NVARCHAR(100) NOT NULL,
-    Fachbereich NVARCHAR(100) NOT NULL,
-    Stockwerk INT NOT NULL,
-    BettenAnzahl INT CHECK (BettenAnzahl > 0) -- Logische Validierung: Keine negativen Betten
-);
-GO
+1. Öffnen Sie den *Object Explorer* im SSMS.
+2. Führen Sie einen Rechtsklick auf den Ordner `Databases` aus und wählen Sie `New Database...`.
+3. Tragen Sie im Feld *Database name* `AKH_Wien` ein und bestätigen Sie mit `OK`.
 
--- -------------------------------------------------------------------------
--- Lösung Aufgabe 2: Patientenaufnahme & 1:n Beziehung (Level 2)
--- -------------------------------------------------------------------------
-CREATE TABLE Patienten (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
-    Nachname NVARCHAR(100) NOT NULL,
-    Vorname NVARCHAR(100) NOT NULL,
-    GebDatum DATE NOT NULL,
-    SVNummer CHAR(10) UNIQUE NOT NULL,      -- Eindeutigkeit der Sozialversicherungsnummer erzwingen
-    Geschlecht CHAR(1) CHECK (Geschlecht IN ('M', 'W', 'D')),
-    StatID INT FOREIGN KEY REFERENCES Stationen(ID) NULL -- FK zu Stationen. NULL erlaubt, falls Patient noch nicht zugewiesen ist.
-);
-GO
+**Schritt 2: Database Diagram Tool initialisieren**
 
--- -------------------------------------------------------------------------
--- Lösung Aufgabe 3: Behandlungslogik & m:n Auflösung (Level 3)
--- -------------------------------------------------------------------------
+1. Erweitern Sie im *Object Explorer* die neu erstellte Datenbank `AKH_Wien`.
+2. Führen Sie einen Rechtsklick auf den Ordner `Database Diagrams` aus und wählen Sie `New Database Diagram`.
+3. Falls ein Warnhinweis erscheint, dass die Support-Objekte fehlen, bestätigen Sie diesen mit `Yes`.
+4. Schließen Sie das Fenster "Add Table", da noch keine Tabellen existieren.
 
--- 1. Voraussetzung: Entität Aerzte erstellen
-CREATE TABLE Aerzte (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
-    Nachname NVARCHAR(100) NOT NULL,
-    Vorname NVARCHAR(100) NOT NULL,
-    Titel NVARCHAR(50),
-    Fachrichtung NVARCHAR(100) NOT NULL,
-    StatID INT FOREIGN KEY REFERENCES Stationen(ID) -- Ein Arzt ist meist einer Hauptstation zugeteilt
-);
-GO
+**Schritt 3: Tabelle `Stationen` erstellen**
 
--- 2. Auflösung der m:n Beziehung (Patienten <-> Aerzte) durch Assoziationstabelle
-CREATE TABLE Behandlungen (
-    ID INT IDENTITY(1,1) PRIMARY KEY,       -- Surrogate Key statt Composite PK (PatID + ArztID)
-    PatID INT FOREIGN KEY REFERENCES Patienten(ID),
-    ArztID INT FOREIGN KEY REFERENCES Aerzte(ID),
-    Datum DATETIME2 NOT NULL,               -- DATETIME2 ist präziser und ressourcenschonender als DATETIME
-    DiagnoseCode NVARCHAR(20),              -- Ausreichend für ICD-10 (z.B. "I10.00")
-    Kosten DECIMAL(18,2) CHECK (Kosten >= 0), -- Kritischer Check: Negativbuchungen auf Datenbankebene verhindern
-    Status NVARCHAR(50) DEFAULT 'Abgeschlossen'
-);
-GO
+1. Rechtsklick in die leere weiße Diagrammfläche -> `New Table...`.
+2. Tabellenname: `Stationen`.
+3. Spalten eintragen: `ID` (int), `Name` (nvarchar(100)), `Fachbereich` (nvarchar(100)), `Stockwerk` (int), `BettenAnzahl` (int).
+4. **Primärschlüssel:** Rechtsklick auf den Zeilenkopf der Spalte `ID` -> `Set Primary Key`. (Ein Schlüsselsymbol erscheint).
+5. **Auto-Inkrement:** Markieren Sie die Spalte `ID`. Drücken Sie `F4`, um die Properties zu öffnen. Suchen Sie `Identity Specification`, klappen Sie es auf und setzen Sie `(Is Identity)` auf `Yes`.
 
-```
+**Schritt 4: Tabelle `Patienten` erstellen**
 
+1. Rechtsklick in die Diagrammfläche -> `New Table...`.
+2. Tabellenname: `Patienten`.
+3. Spalten eintragen: `ID` (int), `Nachname` (nvarchar(100)), `Vorname` (nvarchar(100)), `GebDatum` (date), `SVNummer` (char(10)), `Geschlecht` (char(1)), `StatID` (int).
+4. Setzen Sie auch hier `ID` als Primary Key und aktivieren Sie analog zu Schritt 3 die `Identity Specification` auf `Yes`.
+
+**Schritt 5: 1:n Beziehung etablieren**
+
+1. Klicken Sie in der Tabelle `Stationen` auf den Zeilenkopf (das Feld vor dem Spaltennamen) der Spalte `ID`.
+2. Halten Sie die linke Maustaste gedrückt und ziehen Sie den Cursor auf die Spalte `StatID` in der Tabelle `Patienten`. Lassen Sie die Maustaste los. 3. Es öffnet sich der Dialog *Tables and Columns*. Prüfen Sie, ob unter *Primary Key Table* `Stationen` mit `ID` und unter *Foreign Key Table* `Patienten` mit `StatID` steht.
+3. Bestätigen Sie zweimal mit `OK`.
+4. Drücken Sie `Strg + S`, um das Diagramm zu speichern (z.B. als `ERM_AKH_Basis`). Die Tabellen werden nun physisch in der Datenbank angelegt.
