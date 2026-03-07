@@ -22,7 +22,7 @@ Wir erstellen Übungsaufgaben für einen 3-Tages-Kurs.
 - **Aufgabenstellung:** Klar und präzise formuliert.
 - **Erwartetes Ergebnis:** Beschreibung (z.B. "Eine Tabelle mit 5 Spalten und 12 Zeilen").
 - **Musterlösung (Hidden):** Korrekter, sauber formatierter T-SQL Code mit Kommentaren.
-- **Pro-Tipp:** Ein Hinweis auf Best Practices oder häufige Fehler.
+- **Tipp:** Ein Hinweis auf Best Practices oder häufige Fehler.
 
 # Tonalität
 Sachlich, lösungsorientiert und präzise.

@@ -129,7 +129,7 @@ WHERE name = 'AKH_Wien';
 
 ### Best Practices aus der DBA-Realität
 
-> ⚠️ **Pro-Tipp: Natürliche vs. Künstliche Schlüssel**
+> ⚠️ **Tipp: Natürliche vs. Künstliche Schlüssel**
 > * Verwenden Sie für Primärschlüssel in der Praxis immer künstliche Identifikatoren (Surrogate Keys wie `INT IDENTITY(1,1)`).
 > * Natürliche Schlüssel scheitern an der Realität: Ein bewusstloser Notfallpatient (John Doe) hat initial keine SVN. Da ein PK aber zwingend `NOT NULL` erfordert, würde das System die lebensrettende Aufnahme des Datensatzes technisch verweigern.
 >
@@ -251,7 +251,7 @@ VALUES ('Müller', 'Anna', '1985-05-20', '1234200585', 1);
 SELECT 
     SVNummer AS Sozialversicherungsnummer,
     Nachname AS Familienname
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -268,7 +268,7 @@ SELECT
     'AKH Wien' AS Klinikstandort,
     Nachname AS PatientenNachname,
     Vorname AS PatientenVorname
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -284,7 +284,7 @@ FROM Patient;
 SELECT 
     Nachname AS Familienname,
     YEAR(GETDATE()) - YEAR(GebDatum) AS GeschaetztesAlter
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -524,7 +524,7 @@ LEFT JOIN Arzt AS Oberarzt
 SELECT 
     COUNT(*) AS AnzahlPatientenGesamt,
     COUNT(Krankenkasse) AS AnzahlVersichertePatienten
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -635,7 +635,7 @@ ORDER BY
 SELECT 
     CONCAT(Nachname, ', ', Vorname) AS Vollname,
     SUBSTRING(SVNummer, 1, 4) AS Geburtsjahrgang_SVN
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -668,7 +668,7 @@ SELECT
     Nachname AS Familienname,
     CONVERT(VARCHAR(10), GebDatum, 104) AS Geburtsdatum_AT,
     FORMAT(GebDatum, 'dd.MM.yyyy') AS Geburtsdatum_Langsam
-FROM Patient;
+FROM Patienten;
 
 ```
 
@@ -982,7 +982,7 @@ WHERE p.GebDatum >= '2000-01-01';
 
 ### Best Practices aus der DBA-Realität
 
-> ⚠️ **Pro-Tipp: "Working Code is not Finished Code"**
+> ⚠️ **Tipp: "Working Code is not Finished Code"**
 > * Geben Sie niemals das erste Skript, das zufällig das richtige Ergebnis liefert, in die Produktion.
 > * Spaghetti-Code ohne Einrückungen und Aliase wird vom Query Optimizer des SQL Servers zwar problemlos verarbeitet, ist aber für den Kollegen in der Nachtschicht unwartbar.
 > * **Evidenz:** 80% der Zeit in der Softwareentwicklung fließt in die Wartung. Schreiben Sie Ihren Code so sauber, als ob derjenige, der ihn warten muss, ein gewaltbereiter Psychopath wäre, der Ihre Wohnadresse kennt.

@@ -11,7 +11,7 @@ Wir erstellen Kursmaterial für einen 3-Tages SQL Basiskurs beim WIFI Wien.
 1. Struktur: Pro Slide max. 3-4 Bulletpoints. Fokus auf Lesbarkeit.
 2. Code-Policy: Nutze sauberes T-SQL. Aliasing (AS) ist Pflicht. Tabellennamen in CamelCase oder Unterstrich, aber konsistent.
 3. Didaktik: Erkläre Konzepte über Analogien aus dem Klinikalltag (z.B. Primary Key = Sozialversicherungsnummer).
-4. Stolperfallen: Integiere pro Modul eine "Pro-Tipp" oder "Achtung"-Box (z.B. "NULL ist kein Wert, sondern ein Zustand").
+4. Stolperfallen: Integiere pro Modul eine "Tipp" oder "Achtung"-Box (z.B. "NULL ist kein Wert, sondern ein Zustand").
 5. Output-Format: Generiere die Inhalte in Markdown. Verwende H2 für Slide-Titel und H3 für Unterpunkte.
 
 # Tonalität
