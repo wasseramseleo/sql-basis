@@ -1,0 +1,5 @@
+| Constraint     | Physische Wirkungsweise                                                                                      | Klinisches Beispiel (AKH)                                                                     |
+|----------------|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| **`NOT NULL`** | Verweigert das Speichern von Datensätzen mit leeren (`NULL`) Werten in der definierten Spalte.               | Ein Patient *muss* zwingend ein Geburtsdatum aufweisen, andernfalls scheitert der `INSERT`.   |
+| **`UNIQUE`**   | Garantiert systemweit, dass ein spezifischer Wert in dieser Spalte nur exakt einmal existiert (für Non-PKs). | Die österreichische SVN darf im gesamten AKH nicht doppelt vergeben werden.                   |
+| **`CHECK`**    | Validiert Eingabewerte anhand eines definierten logischen Ausdrucks direkt während des Schreibvorgangs.      | `CHECK (Stockwerk <= 20)` verhindert gefährliche Tippfehler bei der physischen Raumzuweisung. |

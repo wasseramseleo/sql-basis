@@ -1,0 +1,6 @@
+| Kriterium                      | Natürlicher Schlüssel (z.B. SVN)                                                                         | Künstlicher Schlüssel (z.B. `INT IDENTITY`)                         |
+|--------------------------------|----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| **Verfügbarkeit bei Aufnahme** | Kritisch. Fehlt bei Notfallpatienten (John Doe). Führt zu `INSERT`-Fehlern (`NOT NULL` Constraint).      | Garantiert. Wird durch das System bei Anlage automatisch generiert. |
+| **Veränderlichkeit**           | Vorhanden. Bei Tippfehlern oder Namensänderungen müssen Primary Keys aktualisiert werden (hohes Risiko). | Unveränderlich. Die System-ID bleibt ein Leben lang statisch.       |
+| **Performance (Indizes)**      | Suboptimal. Strings oder lange Zeichenketten vergrößern den B-Tree Index massiv.                         | Hochperformant. 4-Byte Integer ermöglichen extrem schnelle Joins.   |
+| **Eindeutigkeit**              | Oft fehlerbehaftet. Internationale Patienten haben keine österreichische SVN.                            | Absolut. Die Engine garantiert die Eindeutigkeit durch Sequenzen.   |

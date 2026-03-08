@@ -58,7 +58,7 @@
 * `LEFT / RIGHT JOIN`: Identifikation von Patienten ohne zugewiesene Betten.
 * Self-Join (Optional/Expert): Hierarchien in der Ärzteschaft.
 
-
+![img.png](img.png)
 
 ### Nachmittag (13:00 – 17:00)
 

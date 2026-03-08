@@ -1,0 +1,5 @@
+Behandlung_ID,Pat_Vorname,Pat_Nachname,SVNummer,Arzt_Name,Arzt_Fachrichtung,Station_Name,Diagnose,Kosten
+1,Max,Mustermann,1234010180,Dr. Gruber,Kardiologie,Herzstation,Hypertonie,150.00
+2,Erika,Schmidt,5678020285,Dr. Gruber,Kardiologie,Herzstation,Check-up,80.00
+3,Max,Mustermann,1234010180,Dr. Wagner,Neurologie,Neurologie West,Migräne,120.00
+4,Max,Mustermann,1234010180,Dr. Gruber,Kardio-Logie,Herzstation,Kontrolle,90.00

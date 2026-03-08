@@ -1,0 +1,5 @@
+Datentyp,Speichereigenschaft,Klinisches Beispiel (AKH),Kritischer Aspekt (Performance/Integrität)
+INT,4-Byte Ganzzahl,"ID (Patient, Station)",Hochperformant für System-IDs und Primary Keys.
+NVARCHAR(n),Variable Zeichenkette (Unicode),"Nachname, DiagnoseCode",Überdimensionierung (MAX) zwingt den Optimizer zu ineffizienten Ausführungsplänen.
+"DECIMAL(p,s)",Fixkommazahl (Exakt),Kosten (z.B. 12450.50),Zwingend für exakte Werte; verhindert gefährliche Rundungsfehler von Floating-Point-Typen.
+DATETIME2 / DATE,Chronologische Daten,"GebDatum, Behandlungs-Datum",Implizite Validierung schützt vor unmöglichen Werten (z.B. 30. Februar).
