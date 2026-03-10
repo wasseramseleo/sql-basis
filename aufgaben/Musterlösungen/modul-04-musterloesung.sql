@@ -18,8 +18,8 @@ GO
 -- -------------------------------------------------------------------------
 SELECT Vorname,
        Nachname,
-       'AKH Wien' AS Krankenhaus,                          -- Literal (statischer Wert)
-    YEAR (GETDATE()) - YEAR (GebDatum) AS Alter_Geschaetzt -- Einfache Berechnung
+       'AKH Wien' AS Krankenhaus,
+    YEAR (GETDATE()) - YEAR (GebDatum) AS Alter_Geschaetzt
 FROM
     Patienten;
 GO
@@ -31,7 +31,7 @@ GO
 -- KORREKT: Berechnung muss in der WHERE-Klausel wiederholt werden.
 
 SELECT Vorname,
-       Nachname, YEAR (GETDATE()) - YEAR (GebDatum) AS Alter_Geschaetzt
+       Nachname, YEAR (GETDATE()) - YEAR (GebDatum) AS 'Alter Geschaetzt'
 FROM
     Patienten
 WHERE

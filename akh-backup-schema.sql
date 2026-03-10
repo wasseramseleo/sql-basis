@@ -48,11 +48,9 @@ CREATE TABLE Patienten (
     GebDatum DATE NOT NULL,
     SVNummer CHAR(10) UNIQUE NOT NULL,
     Geschlecht CHAR(1) CHECK (Geschlecht IN ('M', 'W', 'D')),
-    -- Erlaubt NULL für LEFT/RIGHT/FULL JOIN Übungen
     StatID INT FOREIGN KEY REFERENCES Stationen(ID) NULL
 );
 
--- Strukturidentische Tabelle für UNION / INTERSECT / EXCEPT Übungen
 CREATE TABLE Patienten_Archiv (
     ID INT PRIMARY KEY,
     Nachname NVARCHAR(100) NOT NULL,
