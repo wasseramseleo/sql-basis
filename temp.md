@@ -1,22 +1,27 @@
--- 1. Sicherstellen, dass wir in der Master-DB sind
-USE master;
-GO
+# Aufgabe 3: Korrelierte Subqueries
 
--- 2. Datenbank mit expliziten Pfaden anlegen
--- WICHTIG: Die Ordner C:\SQLData\ müssen existieren!
-CREATE DATABASE AKH_Wien
-ON PRIMARY (
-NAME = AKH_Wien_Data,
-FILENAME = 'C:\Users\Public\AKH_Wien.mdf', -- Pfad anpassen, wo er Rechte hat
-SIZE = 10MB,
-MAXSIZE = 100MB,
-FILEGROWTH = 5MB
-)
-LOG ON (
-NAME = AKH_Wien_Log,
-FILENAME = 'C:\Users\Public\AKH_Wien.ldf', -- Pfad anpassen
-SIZE = 5MB,
-MAXSIZE = 50MB,
-FILEGROWTH = 5MB
-);
-GO
+### Lernziel
+
+Verständnis der zeilenweisen Interaktion zwischen Haupt- und Unterabfrage.
+
+### Szenario
+
+Die ärztliche Direktion möchte für jeden Patienten wissen, wie hoch seine letzte Behandlung im Vergleich zu *seinen
+eigenen* durchschnittlichen Behandlungskosten war.
+
+### Aufgabenstellung
+
+Erstellen Sie eine Abfrage auf `Behandlungen`. Geben Sie `PatID`, `Datum` und `Kosten` aus. Fügen Sie eine berechnete
+Spalte hinzu, die mittels einer korrelierten Subquery den Durchschnitt der Kosten *nur für diesen spezifischen
+Patienten* ermittelt.
+
+### Erwartetes Ergebnis
+
+Eine Liste, bei der in jeder Zeile der individuelle Durchschnitt des jeweiligen Patienten als Vergleichswert steht.
+
+### Tipp
+
+Im Gegensatz zu unkorrelierten Subqueries wird eine korrelierte Subquery für jede Zeile der äußeren Abfrage neu
+evaluiert. Bei sehr großen Datenmengen im AKH kann dies die Performance beeinträchtigen. Hier sind oft Window
+Functions (wie `AVG() OVER(...)`) die effizientere, fortgeschrittene Alternative.
+

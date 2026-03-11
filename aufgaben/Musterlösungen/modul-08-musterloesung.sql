@@ -9,7 +9,7 @@ GO
 -- -------------------------------------------------------------------------
 SELECT Nachname,
        Vorname,
-       CONVERT(VARCHAR, GebDatum, 104) AS GebDatum_AT -- 104 entspricht dem deutschen/österreichischen Format (dd.mm.yyyy)
+       CONVERT(VARCHAR, GebDatum, 104) AS GebDatum_AT
 FROM Patienten
 ORDER BY Nachname ASC,
          Vorname ASC;
@@ -19,7 +19,7 @@ GO
 -- Lösung Aufgabe 2: String-Manipulation für Dienstpläne
 -- -------------------------------------------------------------------------
 SELECT
-    CONCAT(Titel, ' ', Nachname, ', ', LEFT(Vorname, 1), '.') AS AnzeigeName
+    CONCAT(Titel, ' ', Nachname, ', ', SUBSTRING(Vorname, 1,1), '.') AS AnzeigeName
 FROM Aerzte
 ORDER BY Nachname ASC;
 GO

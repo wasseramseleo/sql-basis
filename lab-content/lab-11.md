@@ -1,127 +1,115 @@
-### Datei 1: `AKH_Uebungen_Modul12_Abschlussprojekt.md`
+# Übungssatz: Modul 12 – AKH-Reporting
 
-# Finales Kursprojekt: AKH-Reporting Dashboard
-
-Das Abschlussmodul bündelt alle Kompetenzen der letzten drei Tage zu einem zusammenhängenden Management-Dashboard. Sie
-übernehmen die Rolle des Lead Data Analysts und liefern der Klinikleitung geschäftskritische Kennzahlen.
-
-## Die Mission: Der "Shift-Leader-Report"
-
-Die Klinikleitung benötigt ein konsolidiertes Reporting-Skript, das vier zentrale Fragestellungen beantwortet. Achten
-Sie auf **sauberen Code**, **aussagekräftige Aliase** und **korrekte Datentypen**.
+Die Mission: Sie agieren als Lead Data Analyst. Die Klinikleitung benötigt einen konsolidierten "Shift-Leader-Report",
+der geschäftskritische Fragestellungen evidenzbasiert beantwortet.
 
 ---
 
-### Teilaufgabe 1: Die Auslastungs-Analyse (Komplexer Join & Aggregation)
+## Aufgabe 1: Die Auslastungs-Analyse
 
-* **Szenario:** Welche Stationen sind am stärksten belegt?
-* **Aufgabenstellung:** Erstellen Sie eine Liste aller Stationen. Geben Sie den Namen der Station, das Stockwerk und die
-  Anzahl der aktuell zugewiesenen Patienten aus. Berechnen Sie zusätzlich die "Auslastungsquote" in Prozent (Patienten /
-  BettenAnzahl * 100).
-* **Erwartung:** Eine Liste, sortiert nach der höchsten Auslastungsquote.
+### Lernziel
 
-### Teilaufgabe 2: Finanzielle Performance nach Fachbereich (Grouping & Having)
+Anwendung von Outer Joins, mathematischen Berechnungen auf Zeilenebene und der Aggregation von Metriken.
 
-* **Szenario:** Das Controlling muss wissen, welche medizinischen Fachbereiche die höchsten Umsätze generieren.
-* **Aufgabenstellung:** Gruppieren Sie alle Behandlungen nach dem `Fachbereich` der Station. Berechnen Sie die Summe der
-  Kosten und die Anzahl der Behandlungen. Berücksichtigen Sie nur "Abgeschlossene" Behandlungen und zeigen Sie nur
-  Fachbereiche an, die mehr als 5.000,00 Euro Gesamtumsatz erzielt haben.
+### Szenario
 
-### Teilaufgabe 3: Patienten-Risiko-Profil (Subqueries & DQL)
+Die Klinikleitung benötigt dringend eine valide Übersicht zur aktuellen Bettenauslastung, um Engpässe auf den
+bettenführenden Stationen datengestützt zu identifizieren.
 
-* **Szenario:** Identifikation von Patienten mit überdurchschnittlich häufigen Krankenhausaufenthalten.
-* **Aufgabenstellung:** Finden Sie alle Patienten (Vorname, Nachname), die öfter im System vorkommen als der
-  Durchschnitt aller Patienten. Nutzen Sie hierfür eine Subquery oder eine CTE zur Ermittlung des Durchschnitts der
-  Behandlungen pro Patient.
+### Aufgabenstellung
 
-### Teilaufgabe 4: Das "Ärzte-Dashboard" (String- & Datumsfunktionen)
+Verknüpfen Sie die Entitäten `Stationen` und `Patienten`. Ermitteln Sie für jede Station den Namen, das zugehörige
+Stockwerk und die absolute Anzahl der aktuell physisch zugewiesenen Patienten. Leiten Sie daraus eine berechnete Spalte
+für die prozentuale "Auslastungsquote" ab. Diese Quote berechnet sich aus dem Quotienten von zugewiesenen Patienten und
+der maximalen Bettenanzahl, multipliziert mit 100. Sichern Sie die Berechnung durch einen expliziten `CAST` auf einen
+Dezimal-Datentyp ab, um systematische Integer-Divisionen (die zu Null-Werten führen) zu blockieren. Sortieren Sie das
+finale Ergebnis absteigend nach der höchsten Auslastungsquote.
 
-* **Szenario:** Eine Übersicht für das Personalbüro.
-* **Aufgabenstellung:** Erstellen Sie eine Liste aller Ärzte. Formatieren Sie den Namen als "NACHNAME, Vorname (Titel)".
-  Berechnen Sie in einer weiteren Spalte, wie viele Behandlungen dieser Arzt im aktuellen Kalenderjahr bereits
-  durchgeführt hat.
+### Erwartetes Ergebnis
 
----
+Eine priorisierte Liste aller Stationen und ihrer prozentualen Auslastung.
 
-**Tipp für das Review:**
-Ein Senior Database Architect achtet nicht nur auf das Ergebnis, sondern auf die Wartbarkeit. Nutzen Sie Kommentare (
-`--`), einheitliche Einrückungen und aussagekräftige Tabellen-Aliase (`p` für Patienten, `s` für Stationen).
+### Tipp
+
+Der Einsatz eines `LEFT JOIN` ist hier architektonisch zwingend. Würden Sie auf einen `INNER JOIN` zurückgreifen, fielen
+komplett leere Stationen mit einer Auslastung von 0 % vollständig aus dem Raster der Klinikleitung.
 
 ---
 
-### Datei 2: `AKH_Loesungen_Modul12_Abschlussprojekt.sql`
+## Aufgabe 2: Finanzielle Performance nach Fachbereich
 
-```sql
--- =========================================================================
--- FINALE MUSTERLÖSUNG: AKH-Reporting Dashboard
--- Autor: Senior Database Architect
--- =========================================================================
-USE
-AKH_Wien;
-GO
-/* TEIL 1: Auslastungs-Analyse
-   Techniken: LEFT JOIN, Aggregation, Mathematische Berechnung
-*/
-SELECT s.Name                                                    AS Stationsname,
-       s.Stockwerk,
-       COUNT(p.ID)                                               AS Patienten_Anzahl,
-       s.BettenAnzahl,
-       -- CAST auf DECIMAL verhindert eine Integer-Division (Ergebnis 0)
-       CAST(COUNT(p.ID) AS DECIMAL(5, 2)) / s.BettenAnzahl * 100 AS Auslastung_Prozent
-FROM Stationen s
-       LEFT JOIN
-     Patienten p ON s.ID = p.StatID
-GROUP BY s.Name, s.Stockwerk, s.BettenAnzahl
-ORDER BY Auslastung_Prozent DESC;
-GO
+### Lernziel
 
-/* TEIL 2: Finanzielle Performance nach Fachbereich
-   Techniken: Multi-Join, WHERE, HAVING, SUM
-*/
-SELECT s.Fachbereich,
-       SUM(b.Kosten) AS Gesamtumsatz,
-       COUNT(b.ID)   AS Behandlungsanzahl
-FROM Behandlungen b
-       JOIN
-     Aerzte a ON b.ArztID = a.ID
-       JOIN
-     Stationen s ON a.StatID = s.ID
-WHERE b.Status = 'Abgeschlossen'
-GROUP BY s.Fachbereich
-HAVING SUM(b.Kosten) > 5000.00
-ORDER BY Gesamtumsatz DESC;
-GO
+Kombination multipler Joins mit der strikten Trennung von Zeilen-Filtern (`WHERE`) und Gruppen-Filtern (`HAVING`).
 
-/* TEIL 3: Patienten-Risiko-Profil
-   Techniken: CTE, Subquery in WHERE
-*/
-WITH PatientenFrequenz AS (
-    SELECT PatID, COUNT(*) AS Anzahl
-    FROM Behandlungen
-    GROUP BY PatID
-)
-SELECT p.Vorname,
-       p.Nachname,
-       pf.Anzahl AS Behandlungen_Gesamt
-FROM Patienten p
-       JOIN
-     PatientenFrequenz pf ON p.ID = pf.PatID
-WHERE pf.Anzahl > (SELECT AVG(CAST(Anzahl AS DECIMAL(10, 2))) FROM PatientenFrequenz);
-GO
+### Szenario
 
-/* TEIL 4: Ärzte-Dashboard
-   Techniken: String-Funktionen, Datums-Filter
-*/
-SELECT UPPER(a.Nachname) + ', ' + a.Vorname + ISNULL(' (' + a.Titel + ')', '') AS Arzt_Formatiert,
-       COUNT(b.ID)                                                             AS Behandlungen_Heuer
-FROM Aerzte a
-       LEFT JOIN
-     Behandlungen b ON a.ID = b.ArztID
-       AND YEAR (b.Datum) = YEAR (GETDATE()) -- Filtert direkt im JOIN für korrekte 0-Werte
-GROUP BY
-  a.Nachname, a.Vorname, a.Titel
-ORDER BY
-  Behandlungen_Heuer DESC;
-GO
+Das Controlling fordert eine finanzielle Rentabilitätsprüfung der medizinischen Abteilungen.
 
-```
+### Aufgabenstellung
+
+Aggregieren Sie die Tabelle `Behandlungen` auf Basis des Attributes `Fachbereich` aus der Tabelle `Stationen`. Ermitteln
+Sie die kumulierten Gesamtkosten sowie die absolute Anzahl der erbrachten Behandlungen pro Fachbereich. Beschränken Sie
+die zugrunde liegende Datenmenge vor der mathematischen Aggregation strikt auf Behandlungen mit dem Status '
+Abgeschlossen'. Filtern Sie das gruppierte Endergebnis anschließend so, dass ausschließlich Fachbereiche ausgewiesen
+werden, die einen Gesamtumsatz von mehr als 5.000,00 Euro erwirtschaftet haben.
+
+### Erwartetes Ergebnis
+
+Eine aggregierte, nach Umsatz absteigend sortierte Liste der rentabelsten Fachbereiche.
+
+---
+
+## Aufgabe 3: Patienten-Risiko-Profil
+
+### Lernziel
+
+Analyse dynamischer Schwellenwerte mithilfe von Common Table Expressions (CTEs) und Unterabfragen.
+
+### Szenario
+
+Zur Prävention von "Drehtüreffekten" (auffällig häufige Wiederaufnahmen) verlangt das Qualitätsmanagement eine
+Identifikation von Hochrisiko-Patienten.
+
+### Aufgabenstellung
+
+Identifizieren Sie alle Patienten (Ausgabe von Vorname, Nachname und absoluter Behandlungsanzahl), deren individuelle
+Besuchsfrequenz den globalen Durchschnitt aller im System erfassten Behandlungen pro Patient übersteigt. Verwenden Sie
+eine CTE, um zunächst die absolute Frequenz pro Patient zu ermitteln. Gleichen Sie diesen aggregierten Wert anschließend
+in der Filterbedingung der Hauptabfrage mit dem dynamisch berechneten, globalen Durchschnitt ab.
+
+### Erwartetes Ergebnis
+
+Eine exakte Liste jener Patienten, die signifikant öfter behandelt wurden als der statistische Durchschnitt.
+
+---
+
+## Aufgabe 4: Das "Ärzte-Dashboard"
+
+### Lernziel
+
+Sichere Zeichenketten-Manipulation und der korrekte Einsatz von Datumsfiltern bei Outer Joins.
+
+### Szenario
+
+Das Personalbüro benötigt für die anstehenden Leistungs- und Jahresgespräche ein Dashboard zur ärztlichen
+Behandlungsdichte.
+
+### Aufgabenstellung
+
+Selektieren Sie den gesamten Personalstamm aus der Tabelle `Aerzte`. Generieren Sie eine formatierte Namensspalte, die
+den Nachnamen in Großbuchstaben, gefolgt von einem Komma, dem Vornamen und dem in Klammern gesetzten Titel ausgibt (z.
+B. "MÜLLER, Anna (Prof. Dr.)"). Fangen Sie `NULL`-Werte beim Titel sauber ab. Berechnen Sie in einer separaten Spalte
+die exakte Anzahl der Behandlungen, die der jeweilige Arzt im aktuell laufenden Kalenderjahr durchgeführt hat.
+Behandlungsfreie Ärzte müssen zwingend mit dem Wert 0 aufscheinen. Sortieren Sie das Dashboard absteigend nach der
+Leistungsdichte.
+
+### Erwartetes Ergebnis
+
+Eine bereinigte, formatierte Übersicht des gesamten medizinischen Personals mit der Jahresleistung.
+
+### Tipp
+
+Wenn Sie einen Datumsfilter (z. B. das laufende Jahr) bei einem `LEFT JOIN` in die `WHERE`-Klausel schreiben, verwandelt
+der Optimizer die Abfrage faktisch in einen `INNER JOIN` – Ärzte mit 0 Behandlungen verschwinden. Setzen Sie den Filter
+direkt in die `ON`-Bedingung des Joins.
